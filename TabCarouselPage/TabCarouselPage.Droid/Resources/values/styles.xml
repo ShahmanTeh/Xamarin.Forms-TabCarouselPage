@@ -1,0 +1,15 @@
+﻿<!--For Pre-21 Material Support-->
+<resources>
+  <style name="MaterialFormCompat.Base" parent="@android:style/Theme.Holo">
+  </style>
+  <style name="MaterialFormCompat" parent="MaterialFormCompat.Base">
+    <item name="android:actionBarStyle">@style/MaterialFormCompat.ActionBarStyle</item>
+  </style>
+  <style name="MaterialFormCompat.ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar">
+    <item name="android:titleTextStyle">@style/MaterialFormCompat.ActionBar.TitleTextStyle</item>
+    <item name="android:background">@color/colorPrimary</item>
+  </style>
+  <style name="MaterialFormCompat.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+    <item name="android:textColor">@android:color/white</item>
+  </style>
+</resources>

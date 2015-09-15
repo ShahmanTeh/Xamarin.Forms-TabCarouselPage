@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view xmlns:android="http://schemas.android.com/apk/res/android"
+    class="tabcarouselpage.droid.widget.TabView"
+    style="?attr/vpiTabPageIndicatorStyle"
+    android:orientation="vertical">
+    <ImageView
+        android:src="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@android:id/icon1" />
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        style="?attr/vpiTabTextStyle"
+        android:text="" />
+</view>
