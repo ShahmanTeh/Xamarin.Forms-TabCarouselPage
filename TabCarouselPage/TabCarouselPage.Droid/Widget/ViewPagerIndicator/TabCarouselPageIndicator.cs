@@ -68,8 +68,8 @@ namespace TabCarouselPage.Droid.Widget
                                                    ? element.Children [ i ].Icon.File.Replace ( ".png" , string.Empty )
                                                    : element.Children [ i ].Icon.File;
                             iconResId = Context.Resources.GetIdentifier ( filename , "drawable" , Context.PackageName );
-
-                            iconResId = Android.Resource.Drawable.IcMenuGallery;
+                        } else {
+                            iconResId = global::Android.Resource.Color.Transparent;
                         }
                         break;
                     case ETabType.IconOnly :
@@ -80,7 +80,8 @@ namespace TabCarouselPage.Droid.Widget
                                                    ? element.Children [ i ].Icon.File.Replace ( ".png" , string.Empty )
                                                    : element.Children [ i ].Icon.File;
                             iconResId = Context.Resources.GetIdentifier(filename, "drawable", Context.PackageName);
-                            iconResId = Android.Resource.Drawable.IcMenuGallery;
+                        } else {
+                            iconResId = global::Android.Resource.Color.Transparent;
                         }
                         break;
                     default :
