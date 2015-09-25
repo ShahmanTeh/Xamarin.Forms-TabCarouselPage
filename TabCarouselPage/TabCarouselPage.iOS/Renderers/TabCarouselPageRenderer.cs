@@ -1,4 +1,4 @@
-﻿ /***************************************************************************************************************
+﻿/***************************************************************************************************************
 	* TabCarouselPageRenderer.cs
 	* 
 	* Copyright (c) 2015, Shahman Teh Sharifuddin
@@ -46,30 +46,30 @@ namespace TabCarouselPage.iOS.Renderers
 
 		public VisualElement Element { get; private set; }
 
-        /// <summary>
-        /// Empty functions in order for Xamarin.Forms to load this class
-        /// </summary>
-        public static void Load () {}
+		/// <summary>
+		/// Empty functions in order for Xamarin.Forms to load this class
+		/// </summary>
+		public static void Load () {}
 
-	    internal class TabCarouselBarDelegate : UITabBarDelegate
-	    {
-	        public TabCarouselPageRenderer PageRenderer { get; set; }
+		internal class TabCarouselBarDelegate : UITabBarDelegate
+		{
+			public TabCarouselPageRenderer PageRenderer { get; set; }
 
-	        public TabCarouselBarDelegate ( TabCarouselPageRenderer pageRenderer ) {
-	            if ( pageRenderer == null ) {
-	                throw new NullReferenceException ();
-	            }
-	            PageRenderer = pageRenderer;
-	        }
+			public TabCarouselBarDelegate ( TabCarouselPageRenderer pageRenderer ) {
+				if ( pageRenderer == null ) {
+					throw new NullReferenceException ();
+				}
+				PageRenderer = pageRenderer;
+			}
 
-	        public override void ItemSelected ( UITabBar tabbar , UITabBarItem item ) {
-	            var selectedIndex = Array.IndexOf ( tabbar.Items , item );
-                PageRenderer.SelectedIndex = selectedIndex;
-                tabbar.BackgroundColor = PageRenderer.TabbedCarousel.Children[selectedIndex].BackgroundColor.ToUIColor();
-	        }
-	    }
+			public override void ItemSelected ( UITabBar tabbar , UITabBarItem item ) {
+				var selectedIndex = Array.IndexOf ( tabbar.Items , item );
+				PageRenderer.SelectedIndex = selectedIndex;
+				tabbar.BackgroundColor = PageRenderer.TabbedCarousel.Children[selectedIndex].BackgroundColor.ToUIColor();
+			}
+		}
 
-	    internal class PageContainer : UIView
+		internal class PageContainer : UIView
 		{
 			private VisualElement Element { get; set; }
 
@@ -232,25 +232,25 @@ namespace TabCarouselPage.iOS.Renderers
 			AddChildViewController ( renderer.ViewController );
 			scrollView.InsertSubview ( view , index );
 
-            //Add TabBarItem into the list
-		    switch ( TabbedCarousel.TabType ) {
-		        case ETabType.TitleOnly :
-                    renderer.ViewController.TabBarItem = new UITabBarItem(page.Title, null, index);
-		            break;
-		        case ETabType.TitleWithIcon :
-                    renderer.ViewController.TabBarItem = new UITabBarItem(page.Title, !string.IsNullOrEmpty(page.Icon) ? UIImage.FromFile(page.Icon) : null, index);
-		            break;
-		        case ETabType.IconOnly :
-                    if ( !string.IsNullOrEmpty ( page.Icon ) ) {
-                        renderer.ViewController.TabBarItem = new UITabBarItem ( string.Empty , UIImage.FromFile ( page.Icon ) , index );
-                    } else {
-                        throw new NullReferenceException("Please include a tab icon for this");
-                    }
-		            break;
-		        default :
-		            throw new ArgumentOutOfRangeException ();
-		    }
-		    tabBarItems.Insert ( index , renderer.ViewController.TabBarItem );
+			//Add TabBarItem into the list
+			switch ( TabbedCarousel.TabType ) {
+				case TabType.TitleOnly :
+					renderer.ViewController.TabBarItem = new UITabBarItem(page.Title, null, index);
+					break;
+				case TabType.TitleWithIcon :
+					renderer.ViewController.TabBarItem = new UITabBarItem(page.Title, !string.IsNullOrEmpty(page.Icon) ? UIImage.FromFile(page.Icon) : null, index);
+					break;
+				case TabType.IconOnly :
+					if ( !string.IsNullOrEmpty ( page.Icon ) ) {
+						renderer.ViewController.TabBarItem = new UITabBarItem ( string.Empty , UIImage.FromFile ( page.Icon ) , index );
+					} else {
+						throw new NullReferenceException("Please include a tab icon for this");
+					}
+					break;
+				default :
+					throw new ArgumentOutOfRangeException ();
+			}
+			tabBarItems.Insert ( index , renderer.ViewController.TabBarItem );
 		}
 
 		private void RemovePage ( ContentPage page , int index ) {
@@ -268,11 +268,11 @@ namespace TabCarouselPage.iOS.Renderers
 		}
 
 		private void SelectSetTabBar ( int index ) {
-		    if ( tabBarView == null || Equals ( tabBarView.SelectedItem , tabBarItems [ index ] ) ) {
-		        return;
-		    }
-		    tabBarView.SelectedItem = tabBarItems [ index ];
-		    tabBarView.BackgroundColor = TabbedCarousel.CurrentPage.BackgroundColor.ToUIColor ();
+			if ( tabBarView == null || Equals ( tabBarView.SelectedItem , tabBarItems [ index ] ) ) {
+				return;
+			}
+			tabBarView.SelectedItem = tabBarItems [ index ];
+			tabBarView.BackgroundColor = TabbedCarousel.CurrentPage.BackgroundColor.ToUIColor ();
 		}
 
 		private void OnPropertyChanged ( object sender , PropertyChangedEventArgs e ) {
@@ -496,27 +496,27 @@ namespace TabCarouselPage.iOS.Renderers
 
 		private delegate void SetRendererDelegate(BindableObject bindable, IVisualElementRenderer value);
 		private static SetRendererDelegate setRendererDelegate;
-	    /// <summary>
-	    /// Reflection from function Xamarin.Forms.Platform.iOS.Platform.SetRenderer ( BindableObject bindable , IVisualElementRenderer value )
-	    /// </summary>
-	    /// <param name="bindable">The bindable.</param>
-	    /// <param name="value">The value.</param>
-	    private static void SetRenderer ( BindableObject bindable , IVisualElementRenderer value ) {
-	        if ( bindable == null ) {
-	            return;
-	        }
-	        if ( value == null ) {
-	            return;
-	        }
-	        if ( setRendererDelegate == null ) {
-	            var assembly = typeof ( CarouselPageRenderer ).Assembly;
-	            var platformType = assembly.GetType ( "Xamarin.Forms.Platform.iOS.Platform" );
-	            var method = platformType.GetMethod ( "SetRenderer" );
-	            setRendererDelegate = ( SetRendererDelegate ) method.CreateDelegate ( typeof ( SetRendererDelegate ) );
-	        }
-	        setRendererDelegate ( bindable , value );
-	    }
+		/// <summary>
+		/// Reflection from function Xamarin.Forms.Platform.iOS.Platform.SetRenderer ( BindableObject bindable , IVisualElementRenderer value )
+		/// </summary>
+		/// <param name="bindable">The bindable.</param>
+		/// <param name="value">The value.</param>
+		private static void SetRenderer ( BindableObject bindable , IVisualElementRenderer value ) {
+			if ( bindable == null ) {
+				return;
+			}
+			if ( value == null ) {
+				return;
+			}
+			if ( setRendererDelegate == null ) {
+				var assembly = typeof ( CarouselPageRenderer ).Assembly;
+				var platformType = assembly.GetType ( "Xamarin.Forms.Platform.iOS.Platform" );
+				var method = platformType.GetMethod ( "SetRenderer" );
+				setRendererDelegate = ( SetRendererDelegate ) method.CreateDelegate ( typeof ( SetRendererDelegate ) );
+			}
+			setRendererDelegate ( bindable , value );
+		}
 
-	    #endregion
+		#endregion
 	}
 }

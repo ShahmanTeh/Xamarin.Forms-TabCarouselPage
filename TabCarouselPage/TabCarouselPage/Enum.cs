@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/***************************************************************************************************************
+	* Enum.cs
+	* 
+	* Copyright (c) 2015, Shahman Teh Sharifuddin
+	* All rights reserved.     
+	* 
+**************************************************************************************************************/
 
 namespace TabCarouselPage.Core
 {
-    public enum ETabType
-    {
-        TitleOnly ,
-        TitleWithIcon ,
-        IconOnly
-    }
+	public enum TabType
+	{
+		TitleOnly ,
+		TitleWithIcon ,
+		IconOnly
+	}
 }

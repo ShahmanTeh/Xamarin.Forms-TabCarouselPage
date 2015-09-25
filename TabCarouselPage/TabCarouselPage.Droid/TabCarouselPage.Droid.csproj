@@ -66,6 +66,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Renderers\ObjectJavaBox.cs" />
+    <Compile Include="Renderers\PageContainer.cs" />
+    <Compile Include="Renderers\TabCarouselPageAdapter.cs" />
     <Compile Include="Renderers\TabCarouselPageRenderer.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

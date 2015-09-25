@@ -22,31 +22,28 @@ namespace TabCarouselPage.Droid.Widget
     {
         private readonly CarouselPage element;
 
-        private TabCarouselPage.Core.TabCarouselPage TabbedCarousel {
-            get { return ( TabCarouselPage.Core.TabCarouselPage ) element; }
+        private Core.TabCarouselPage TabbedCarousel {
+            get { return ( Core.TabCarouselPage ) element; }
         }
 
-        public TabCarouselPageIndicator ( Context context , CarouselPage element ) : base ( context ) {
+        public TabCarouselPageIndicator ( Context context , CarouselPage element )
+                : base ( context ) {
             this.element = element;
         }
 
-        public TabCarouselPageIndicator(Context context, CarouselPage element, IAttributeSet attrs) : base(context, attrs) {
+        public TabCarouselPageIndicator ( Context context , CarouselPage element , IAttributeSet attrs )
+                : base ( context , attrs ) {
             this.element = element;
         }
 
-
-        //from IPageIndicator
-
-        public override void SetViewPager(ViewPager view)
-        {
+        public override void SetViewPager ( ViewPager view ) {
             var adapter = view.Adapter;
-            if (adapter == null)
-            {
-                throw new IllegalStateException("ViewPager does not have adapter instance.");
+            if ( adapter == null ) {
+                throw new IllegalStateException ( "ViewPager does not have adapter instance." );
             }
             mViewPager = view;
-            view.SetOnPageChangeListener(this);
-            NotifyDataSetChanged();
+            view.SetOnPageChangeListener ( this );
+            NotifyDataSetChanged ();
         }
 
         public override void NotifyDataSetChanged () {
@@ -57,13 +54,12 @@ namespace TabCarouselPage.Droid.Widget
                 string title;
                 int iconResId = 0;
                 switch ( TabbedCarousel.TabType ) {
-                    case ETabType.TitleOnly:
-                        title = element.Children[i].Title ?? string.Empty;
+                    case TabType.TitleOnly :
+                        title = element.Children [ i ].Title ?? string.Empty;
                         break;
-                    case ETabType.TitleWithIcon:
-                        title = element.Children[i].Title ?? string.Empty;
+                    case TabType.TitleWithIcon :
+                        title = element.Children [ i ].Title ?? string.Empty;
                         if ( element.Children [ i ].Icon != null ) {
-                            //element.Children[i].Icon.File
                             var filename = element.Children [ i ].Icon.File.Contains ( ".png" )
                                                    ? element.Children [ i ].Icon.File.Replace ( ".png" , string.Empty )
                                                    : element.Children [ i ].Icon.File;
@@ -72,14 +68,13 @@ namespace TabCarouselPage.Droid.Widget
                             iconResId = global::Android.Resource.Color.Transparent;
                         }
                         break;
-                    case ETabType.IconOnly :
+                    case TabType.IconOnly :
                         title = string.Empty;
                         if ( element.Children [ i ].Icon != null ) {
-                            //element.Children[i].Icon.File
                             var filename = element.Children [ i ].Icon.File.Contains ( ".png" )
                                                    ? element.Children [ i ].Icon.File.Replace ( ".png" , string.Empty )
                                                    : element.Children [ i ].Icon.File;
-                            iconResId = Context.Resources.GetIdentifier(filename, "drawable", Context.PackageName);
+                            iconResId = Context.Resources.GetIdentifier ( filename , "drawable" , Context.PackageName );
                         } else {
                             iconResId = global::Android.Resource.Color.Transparent;
                         }
@@ -94,6 +89,30 @@ namespace TabCarouselPage.Droid.Widget
             }
             SetCurrentItem ( mSelectedTabIndex );
             RequestLayout ();
+        }
+
+        protected override void AddTab ( string text , int index , int iconResId = 0 ) {
+            base.AddTab ( text , index , iconResId );
+            for ( var i = 0; i < mTabLayout.ChildCount; i++ ) {
+                if ( !( mTabLayout.GetChildAt ( i ) is TabView ) ) {
+                    continue;
+                }
+                var tabView = mTabLayout.GetChildAt ( i ) as TabView;
+                if ( tabView == null ) {
+                    continue;
+                }
+                switch ( TabbedCarousel.TabType ) {
+                    case TabType.TitleOnly :
+                        break;
+                    case TabType.TitleWithIcon :
+                        tabView.TextView.SetTextSize ( ComplexUnitType.Sp , 10 );
+                        break;
+                    case TabType.IconOnly :
+                        break;
+                    default :
+                        throw new ArgumentOutOfRangeException ();
+                }
+            }
         }
     }
 }

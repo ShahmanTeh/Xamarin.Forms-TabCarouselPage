@@ -26,11 +26,11 @@ namespace Sample
                 BackgroundColor = Color.FromHex("#e67e22"),
                 Title = "Tab3"
             };
-            var customTab = new TabCarouselPage.Core.TabCarouselPage(ETabType.TitleWithIcon);
+            var customTab = new TabCarouselPage.Core.TabCarouselPage(TabType.TitleWithIcon);
             customTab.Children.Add(tab1);
             customTab.Children.Add(tab2);
             customTab.Children.Add(tab3);
-            MainPage = new NavigationPage(customTab) { Title = "Sample Custom Tab" };
+            MainPage = new NavigationPage(customTab) { Title = "Sample Custom Tab"};
         }
 
         protected override void OnStart()

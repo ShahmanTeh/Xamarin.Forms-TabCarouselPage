@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Foundation;
 using TabCarouselPage.iOS.Renderers;
 using UIKit;
@@ -24,9 +23,9 @@ namespace Sample.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             global::Xamarin.Forms.Forms.Init();
+            TabCarouselPageRenderer.Load ();
             LoadApplication(new App());
 
-            TabCarouselPageRenderer.Load ();
 
             return base.FinishedLaunching(app, options);
         }

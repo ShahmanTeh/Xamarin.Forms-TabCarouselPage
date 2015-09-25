@@ -2,7 +2,8 @@
 <view xmlns:android="http://schemas.android.com/apk/res/android"
     class="tabcarouselpage.droid.widget.TabView"
     style="?attr/vpiTabPageIndicatorStyle"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="bottom">
     <ImageView
         android:src="@android:color/transparent"
         android:layout_width="match_parent"
@@ -13,6 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:layout_gravity="center"
+        android:maxLines="2"
         style="?attr/vpiTabTextStyle"
         android:text="" />
 </view>
