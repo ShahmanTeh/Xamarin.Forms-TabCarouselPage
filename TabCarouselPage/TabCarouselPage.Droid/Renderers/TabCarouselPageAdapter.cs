@@ -16,7 +16,7 @@ using Xamarin.Forms.Platform.Android;
 
 namespace TabCarouselPage.Droid.Renderers
 {
-	public class TabCarouselPageAdapter : PagerAdapter, ViewPager.IOnPageChangeListener
+	public class TabCarouselPageAdapter : PagerAdapter , ViewPager.IOnPageChangeListener
 	{
 		private bool ignoreAndroidSelection;
 		private readonly ViewPager pager;
@@ -33,6 +33,7 @@ namespace TabCarouselPage.Droid.Renderers
 			this.context = context;
 			page.PagesChanged += OnPagesChanged;
 		}
+
 		protected override void Dispose ( bool disposing ) {
 			if ( disposing && page != null ) {
 				foreach ( var element in page.Children ) {
@@ -71,7 +72,7 @@ namespace TabCarouselPage.Droid.Renderers
 		}
 
 		public override int GetItemPosition ( Java.Lang.Object item ) {
-			ObjectJavaBox<Tuple<ViewGroup, Page, int>> objectJavaBox = (ObjectJavaBox<Tuple<ViewGroup, Page, int>>)item;
+			ObjectJavaBox <Tuple <ViewGroup , Page , int>> objectJavaBox = ( ObjectJavaBox <Tuple <ViewGroup , Page , int>> ) item;
 			Element parent = objectJavaBox.Instance.Item2.Parent;
 			if ( parent == null ) {
 				return -2;
@@ -83,39 +84,38 @@ namespace TabCarouselPage.Droid.Renderers
 			if ( num == objectJavaBox.Instance.Item3 ) {
 				return -1;
 			}
-			objectJavaBox.Instance = new Tuple <ViewGroup , Page , int> ( objectJavaBox.Instance.Item1, objectJavaBox.Instance.Item2, num );
+			objectJavaBox.Instance = new Tuple <ViewGroup , Page , int> ( objectJavaBox.Instance.Item1 , objectJavaBox.Instance.Item2 , num );
 			return num;
 		}
 
 		public override Java.Lang.Object InstantiateItem ( ViewGroup container , int position ) {
-			ContentPage contentPage = page.Children[position];
+			ContentPage contentPage = page.Children [ position ];
 			if ( GetRenderer ( contentPage ) == null ) {
-				SetRenderer(contentPage, RendererFactory.GetRenderer(contentPage));
+				SetRenderer ( contentPage , RendererFactory.GetRenderer ( contentPage ) );
 			}
-			IVisualElementRenderer renderer = GetRenderer(contentPage);
+			IVisualElementRenderer renderer = GetRenderer ( contentPage );
 			renderer.ViewGroup.RemoveFromParent ();
-			PageContainer pageContainer = new PageContainer(context, renderer);
-			container.AddView(pageContainer);
-			return new ObjectJavaBox<Tuple<ViewGroup, Page, int>>(new Tuple<ViewGroup, Page, int>(pageContainer, contentPage, position));
+			PageContainer pageContainer = new PageContainer ( context , renderer );
+			container.AddView ( pageContainer );
+			return
+					new ObjectJavaBox <Tuple <ViewGroup , Page , int>> (
+							new Tuple <ViewGroup , Page , int> ( pageContainer , contentPage , position ) );
 		}
-		public override void DestroyItem(Android.Views.View container, int position, Java.Lang.Object item)
-		{
-			ObjectJavaBox<Tuple<ViewGroup, Page, int>> objectJavaBox = (ObjectJavaBox<Tuple<ViewGroup, Page, int>>)item;
-			GetRenderer(objectJavaBox.Instance.Item2).ViewGroup.RemoveFromParent ();
+
+		public override void DestroyItem ( Android.Views.View container , int position , Java.Lang.Object item ) {
+			ObjectJavaBox <Tuple <ViewGroup , Page , int>> objectJavaBox = ( ObjectJavaBox <Tuple <ViewGroup , Page , int>> ) item;
+			GetRenderer ( objectJavaBox.Instance.Item2 ).ViewGroup.RemoveFromParent ();
 			objectJavaBox.Instance.Item1.RemoveFromParent ();
 		}
 
-		public override bool IsViewFromObject(Android.Views.View view, Java.Lang.Object item)
-		{
-			ViewGroup viewGroup = ((ObjectJavaBox<Tuple<ViewGroup, Page, int>>)item).Instance.Item1;
+		public override bool IsViewFromObject ( Android.Views.View view , Java.Lang.Object item ) {
+			ViewGroup viewGroup = ( ( ObjectJavaBox <Tuple <ViewGroup , Page , int>> ) item ).Instance.Item1;
 			return view == viewGroup;
 		}
 
-		public void OnPageScrollStateChanged ( int state ) {
-		}
+		public void OnPageScrollStateChanged ( int state ) {}
 
-		public void OnPageScrolled ( int position , float positionOffset , int positionOffsetPixels ) {
-		}
+		public void OnPageScrolled ( int position , float positionOffset , int positionOffsetPixels ) {}
 
 		public void OnPageSelected ( int position ) {
 			if ( ignoreAndroidSelection ) {
@@ -124,7 +124,7 @@ namespace TabCarouselPage.Droid.Renderers
 			int currentItem = pager.CurrentItem;
 			page.CurrentPage = currentItem < 0 || currentItem >= page.Children.Count ? null : page.Children [ currentItem ];
 		}
-		
+
 		/* NOTES:
 		 * 
 		 *  @Shahman's Note:
@@ -138,9 +138,11 @@ namespace TabCarouselPage.Droid.Renderers
 		 * More Discussions here: http://forums.xamarin.com/discussion/comment/111954/#Comment_111954
 		 *
 		 */
+
 		#region Hack via Reflection
 
-		private delegate IVisualElementRenderer GetRendererDelegate(BindableObject bindable);
+		private delegate IVisualElementRenderer GetRendererDelegate ( BindableObject bindable );
+
 		private static GetRendererDelegate getRendererDelegate;
 
 		/// <summary>
@@ -161,7 +163,8 @@ namespace TabCarouselPage.Droid.Renderers
 			return getRendererDelegate ( bindable );
 		}
 
-		private delegate void SetRendererDelegate(BindableObject bindable, IVisualElementRenderer value);
+		private delegate void SetRendererDelegate ( BindableObject bindable , IVisualElementRenderer value );
+
 		private static SetRendererDelegate setRendererDelegate;
 
 		/// <summary>

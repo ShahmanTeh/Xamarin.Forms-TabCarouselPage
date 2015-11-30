@@ -14,17 +14,22 @@ using System.Threading;
 using CoreGraphics;
 using TabCarouselPage.Core;
 using TabCarouselPage.iOS.Renderers;
+using TabCarouselPage.iOS.UIKit;
 using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 
 [assembly: ExportRenderer(typeof(TabCarouselPage.Core.TabCarouselPage), typeof(TabCarouselPageRenderer))]
+
 namespace TabCarouselPage.iOS.Renderers
 {
-	public class TabCarouselPageRenderer : UIViewController, IVisualElementRenderer
+	public class TabCarouselPageRenderer : UIViewController , IVisualElementRenderer
 	{
+		#region Tab Bar View
+
 		protected UITabBar tabBarView;
-		private List<UITabBarItem> tabBarItems;
+		private List <UITabBarItem> tabBarItems;
+
 		private static int TabBarHeight {
 			get {
 				if ( Device.Idiom == TargetIdiom.Tablet ) {
@@ -37,12 +42,16 @@ namespace TabCarouselPage.iOS.Renderers
 				return 49;
 			}
 		}
+		#endregion
+
 		private UIScrollView scrollView;
-		private Dictionary<Page, UIView> containerMap;
+		private Dictionary <Page , UIView> containerMap;
 		private VisualElementTracker tracker;
 		private EventTracker events;
+		private bool disposed;
+		private bool appeared;
 		private bool ignoreNativeScrolling;
-		private EventHandler<VisualElementChangedEventArgs> elementChanged;
+		private EventHandler <VisualElementChangedEventArgs> elementChanged;
 
 		public VisualElement Element { get; private set; }
 
@@ -51,50 +60,14 @@ namespace TabCarouselPage.iOS.Renderers
 		/// </summary>
 		public static void Load () {}
 
-		internal class TabCarouselBarDelegate : UITabBarDelegate
-		{
-			public TabCarouselPageRenderer PageRenderer { get; set; }
 
-			public TabCarouselBarDelegate ( TabCarouselPageRenderer pageRenderer ) {
-				if ( pageRenderer == null ) {
-					throw new NullReferenceException ();
-				}
-				PageRenderer = pageRenderer;
-			}
-
-			public override void ItemSelected ( UITabBar tabbar , UITabBarItem item ) {
-				var selectedIndex = Array.IndexOf ( tabbar.Items , item );
-				PageRenderer.SelectedIndex = selectedIndex;
-				tabbar.BackgroundColor = PageRenderer.TabbedCarousel.Children[selectedIndex].BackgroundColor.ToUIColor();
-			}
-		}
-
-		internal class PageContainer : UIView
-		{
-			private VisualElement Element { get; set; }
-
-			public PageContainer ( VisualElement element ) {
-				Element = element;
-			}
-
-			public override void LayoutSubviews () {
-				base.LayoutSubviews ();
-				if ( Subviews.Length <= 0 ) {
-					return;
-				}
-				Subviews [ 0 ].Frame = new CGRect ( 0 , 0 , ( float ) Element.Width , ( float ) Element.Height );
-			}
-		}
-
-
-		protected int SelectedIndex {
+		protected internal int SelectedIndex {
 			get { return ( int ) ( scrollView.ContentOffset.X / scrollView.Frame.Width ); }
 			set { ScrollToPage ( value , true ); }
 		}
 
-		protected TabCarouselPage.Core.TabCarouselPage TabbedCarousel
-		{
-			get { return (TabCarouselPage.Core.TabCarouselPage)Element; }
+		protected internal TabCarouselPage.Core.TabCarouselPage TabbedCarousel {
+			get { return ( TabCarouselPage.Core.TabCarouselPage ) Element; }
 		}
 
 		public UIView NativeView {
@@ -105,7 +78,7 @@ namespace TabCarouselPage.iOS.Renderers
 			get { return this; }
 		}
 
-		public event EventHandler<VisualElementChangedEventArgs> ElementChanged {
+		public event EventHandler <VisualElementChangedEventArgs> ElementChanged {
 			add {
 				EventHandler <VisualElementChangedEventArgs> eventHandler = elementChanged;
 				EventHandler <VisualElementChangedEventArgs> comparand;
@@ -141,7 +114,6 @@ namespace TabCarouselPage.iOS.Renderers
 		}
 
 		public void SetElement ( VisualElement element ) {
-
 			VisualElement element1 = Element;
 			Element = element;
 			containerMap = new Dictionary <Page , UIView> ();
@@ -173,7 +145,7 @@ namespace TabCarouselPage.iOS.Renderers
 					ShowsHorizontalScrollIndicator = false
 			};
 			scrollView.DecelerationEnded += OnDecelerationEnded;
-			View.Add ( scrollView );
+			View.AddSubview ( scrollView );
 			int num = 0;
 			foreach ( var page in TabbedCarousel.Children ) {
 				InsertPage ( page , num++ );
@@ -197,23 +169,16 @@ namespace TabCarouselPage.iOS.Renderers
 			}
 			eventHandler ( this , e );
 		}
-		
+
 		private void OnDecelerationEnded ( object sender , EventArgs e ) {
 			if ( ignoreNativeScrolling || SelectedIndex >= TabbedCarousel.Children.Count ) {
 				return;
 			}
 			TabbedCarousel.CurrentPage = TabbedCarousel.Children [ SelectedIndex ];
 		}
-		
+
 		private void Reset () {
-			foreach ( KeyValuePair <Page , UIView> keyValuePair in containerMap ) {
-				keyValuePair.Value.RemoveFromSuperview ();
-				IVisualElementRenderer renderer = GetRenderer ( keyValuePair.Key );
-				renderer.ViewController.RemoveFromParentViewController ();
-				renderer.NativeView.RemoveFromSuperview ();
-				SetRenderer ( keyValuePair.Key , null );
-			}
-			containerMap.Clear ();
+			Clear ();
 			int num = 0;
 			foreach ( ContentPage page in TabbedCarousel.Children ) {
 				InsertPage ( page , num++ );
@@ -226,7 +191,7 @@ namespace TabCarouselPage.iOS.Renderers
 				renderer = RendererFactory.GetRenderer ( page );
 				SetRenderer ( page , renderer );
 			}
-			UIView view = new PageContainer ( page );
+			UIView view = new UIPageContainer ( page );
 			view.AddSubview ( renderer.NativeView );
 			containerMap [ page ] = view;
 			AddChildViewController ( renderer.ViewController );
@@ -235,16 +200,16 @@ namespace TabCarouselPage.iOS.Renderers
 			//Add TabBarItem into the list
 			switch ( TabbedCarousel.TabType ) {
 				case TabType.TitleOnly :
-					renderer.ViewController.TabBarItem = new UITabBarItem(page.Title, null, index);
+					renderer.ViewController.TabBarItem = new UITabBarItem ( page.Title , null , index );
 					break;
 				case TabType.TitleWithIcon :
-					renderer.ViewController.TabBarItem = new UITabBarItem(page.Title, !string.IsNullOrEmpty(page.Icon) ? UIImage.FromFile(page.Icon) : null, index);
+					renderer.ViewController.TabBarItem = new UITabBarItem ( page.Title , !string.IsNullOrEmpty ( page.Icon ) ? UIImage.FromFile ( page.Icon ) : null , index );
 					break;
 				case TabType.IconOnly :
 					if ( !string.IsNullOrEmpty ( page.Icon ) ) {
 						renderer.ViewController.TabBarItem = new UITabBarItem ( string.Empty , UIImage.FromFile ( page.Icon ) , index );
 					} else {
-						throw new NullReferenceException("Please include a tab icon for this");
+						throw new NullReferenceException ( "Please include a tab icon for this" );
 					}
 					break;
 				default :
@@ -284,15 +249,16 @@ namespace TabCarouselPage.iOS.Renderers
 
 		private void OnPagesChanged ( object sender , NotifyCollectionChangedEventArgs e ) {
 			ignoreNativeScrolling = true;
-			NotifyCollectionChangedAction collectionChangedAction = Apply ( self:e , insert:( o , i , c ) => InsertPage ( ( ContentPage ) o , i ) , removeAt:( o , i ) => RemovePage ( ( ContentPage ) o , i ) , reset:Reset );
+			NotifyCollectionChangedAction collectionChangedAction = Apply ( self : e ,
+																			insert : ( o , i , c ) => InsertPage ( ( ContentPage ) o , i ) ,
+																			removeAt : ( o , i ) => RemovePage ( ( ContentPage ) o , i ) ,
+																			reset : Reset );
 			PositionChildren ();
 			ignoreNativeScrolling = false;
 			if ( collectionChangedAction != NotifyCollectionChangedAction.Reset ) {
 				return;
 			}
-			int index = TabbedCarousel.CurrentPage != null
-								? TabbedCarousel.Children.IndexOf ( TabbedCarousel.CurrentPage )
-								: 0;
+			int index = TabbedCarousel.CurrentPage != null ? TabbedCarousel.Children.IndexOf ( TabbedCarousel.CurrentPage ) : 0;
 			if ( index < 0 ) {
 				index = 0;
 			}
@@ -310,8 +276,15 @@ namespace TabCarouselPage.iOS.Renderers
 			tabBarView.Delegate = new TabCarouselBarDelegate ( this );
 
 			//Adjust the scrollview height to accomodate the tabbar
-			scrollView.Frame = new CGRect(View.Bounds.X, View.Bounds.Y, View.Bounds.Width, View.Bounds.Height - tabBarView.Frame.Height);
+			scrollView.Frame = new CGRect ( View.Bounds.X , View.Bounds.Y , View.Bounds.Width , View.Bounds.Height - tabBarView.Frame.Height );
+
+			//Children need to set a different bounds than the parent, therefore the following needs to be called
 			Element.Layout ( new Rectangle ( 0.0 , 0.0 , View.Bounds.Width , View.Bounds.Height ) );
+			//this is where we layout the view
+			foreach ( var page in TabbedCarousel.Children ) {
+				page.Layout ( new Rectangle ( Element.X , Element.Y , Element.Width , Element.Height - TabBarHeight ) );
+			}
+
 			PositionChildren ();
 			UpdateCurrentPage ( false );
 		}
@@ -322,6 +295,55 @@ namespace TabCarouselPage.iOS.Renderers
 
 		public override void DidRotate ( UIInterfaceOrientation fromInterfaceOrientation ) {
 			ignoreNativeScrolling = false;
+		}
+
+		private void Clear () {
+			foreach ( var keyValuePair in containerMap ) {
+				keyValuePair.Value.RemoveFromSuperview ();
+				var renderer = GetRenderer ( keyValuePair.Key );
+				if ( renderer != null ) {
+					renderer.ViewController.RemoveFromParentViewController ();
+					renderer.NativeView.RemoveFromSuperview ();
+					SetRenderer ( keyValuePair.Key , null );
+				}
+			}
+			containerMap.Clear ();
+		}
+
+		protected override void Dispose ( bool disposing ) {
+			if ( disposing && !disposed ) {
+				TabbedCarousel.PropertyChanged -= OnPropertyChanged;
+				SetRenderer ( Element , null );
+				Clear ();
+				if ( scrollView != null ) {
+					scrollView.DecelerationEnded -= OnDecelerationEnded;
+					scrollView.RemoveFromSuperview ();
+					scrollView = null;
+				}
+				if ( appeared ) {
+					appeared = false;
+					SendDisappearing ();
+				}
+				if ( tabBarView != null ) {
+					if ( tabBarView.Delegate != null ) {
+						tabBarView.Delegate.Dispose ();
+						tabBarView.Delegate = null;
+					}
+					tabBarView.RemoveFromSuperview ();
+					tabBarView = null;
+				}
+				if ( events != null ) {
+					events.Dispose ();
+					events = null;
+				}
+				if ( tracker != null ) {
+					tracker.Dispose ();
+					tracker = null;
+				}
+				Element = null;
+				disposed = true;
+			}
+			base.Dispose ( disposing );
 		}
 
 		private void UpdateCurrentPage ( bool animated = true ) {
@@ -378,10 +400,13 @@ namespace TabCarouselPage.iOS.Renderers
 		 * More Discussions here: http://forums.xamarin.com/discussion/comment/111954/#Comment_111954
 		 *
 		 */
+
 		#region Hack via Reflection
 
-		private delegate NotifyCollectionChangedAction ApplyNotifyCollectionChangedActionDelegate(NotifyCollectionChangedEventArgs self, Action<object, int, bool> insert, Action<object, int> removeAt, Action reset);
+		private delegate NotifyCollectionChangedAction ApplyNotifyCollectionChangedActionDelegate ( NotifyCollectionChangedEventArgs self , Action <object , int , bool> insert , Action <object , int> removeAt , Action reset );
+
 		private static ApplyNotifyCollectionChangedActionDelegate applyNotifyCollectionChangedActionDelegate;
+
 		/// <summary>
 		/// Reflection from function Xamarin.Forms.Forms::Apply(this NotifyCollectionChangedEventArgs self, Action( object, int, bool ) insert, Action( object, int ) removeAt, Action reset)
 		/// </summary>
@@ -400,8 +425,10 @@ namespace TabCarouselPage.iOS.Renderers
 			return applyNotifyCollectionChangedActionDelegate ( self , insert , removeAt , reset );
 		}
 
-		private delegate void Forms_SendViewInitializedDelegate(VisualElement element, UIView nativeView);
+		private delegate void Forms_SendViewInitializedDelegate ( VisualElement element , UIView nativeView );
+
 		private static Forms_SendViewInitializedDelegate formsSendViewInitializedDelegate;
+
 		/// <summary>
 		/// Reflection from function Xamarin.Forms.Forms::SendViewInitialized(this VisualElement self, UIView nativeView)
 		/// </summary>
@@ -474,8 +501,10 @@ namespace TabCarouselPage.iOS.Renderers
 			method.Invoke ( page , null );
 		}
 
-		private delegate IVisualElementRenderer GetRendererDelegate(BindableObject bindable);
+		private delegate IVisualElementRenderer GetRendererDelegate ( BindableObject bindable );
+
 		private static GetRendererDelegate getRendererDelegate;
+
 		/// <summary>
 		/// Reflection from function IVisualElementRenderer Xamarin.Forms.Platform.iOS.Platform.GetRenderer(BindableObject bindable)
 		/// </summary>
@@ -494,8 +523,10 @@ namespace TabCarouselPage.iOS.Renderers
 			return getRendererDelegate ( bindable );
 		}
 
-		private delegate void SetRendererDelegate(BindableObject bindable, IVisualElementRenderer value);
+		private delegate void SetRendererDelegate ( BindableObject bindable , IVisualElementRenderer value );
+
 		private static SetRendererDelegate setRendererDelegate;
+
 		/// <summary>
 		/// Reflection from function Xamarin.Forms.Platform.iOS.Platform.SetRenderer ( BindableObject bindable , IVisualElementRenderer value )
 		/// </summary>

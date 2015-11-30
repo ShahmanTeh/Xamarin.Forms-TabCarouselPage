@@ -55,7 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UIKit\TabCarouselBarDelegate.cs" />
     <Compile Include="Renderers\TabCarouselPageRenderer.cs" />
+    <Compile Include="UIKit\UIPageContainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
